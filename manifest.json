@@ -1,8 +1,8 @@
 {
-  "name": "Text Scanner App",
-  "short_name": "TextScan",
-  "description": "Scan text easily from images.",
-  "start_url": "/PhotoMaker",
+  "name": "Document Scanner App",
+  "short_name": "DocumentScanner",
+  "description": "Scan documents quickly and export crystal-clear PDF files.",
+  "start_url": "/DocumentScanner",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",

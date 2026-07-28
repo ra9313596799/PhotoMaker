@@ -1,10 +1,10 @@
-const CACHE_NAME = 'textscan-v1';
+const CACHE_NAME = 'DocumentScanner-v1';
 const urlsToCache = [
-  '/textScan/',
-  '/textScan/index.html',
+  '/DocumentScanner/',
+  '/DocumentScanner/index.html',
   // Agar aapki css ya js files hain, toh unka naam bhi yahan dalein jaise:
-  // '/textScan/style.css',
-  // '/textScan/script.js'
+  // '/DocumentScanner/style.css',
+  // '/DocumentScanner/script.js'
 ];
 
 // Install Service Worker
