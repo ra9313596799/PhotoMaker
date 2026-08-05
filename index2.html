@@ -3,257 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Passport Maker - Pro Dark Edition</title>
-    
+    <title>Professional Photo Maker</title>
+
+    <!-- Service worker register karne ke liye -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js');
+        });
+    }
+    </script>
+    <!--End Service worker register karne ke liye -->
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --primary: #6366f1; 
-            --primary-hover: #818cf8;
-            --bg-base: #09090e;
-            --panel-bg: rgba(26, 26, 46, 0.6); 
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: rgba(255, 255, 255, 0.12);
-            --input-bg: rgba(0, 0, 0, 0.4);
-            --sheet-bg: #ffffff;
-        }
+        :root{--primary: #6366f1;  --primary-hover: #818cf8; --bg-base: #09090e; --panel-bg: rgba(26, 26, 46, 0.6);  --text-main: #f8fafc; --text-muted: #94a3b8; --border: rgba(255, 255, 255, 0.12); --input-bg: rgba(0, 0, 0, 0.4); --sheet-bg: #ffffff;}
+        *{box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-
-        body {
-            background: radial-gradient(circle at 50% 0%, #1a1a3a 0%, #09090e 60%);
-            background-color: var(--bg-base);
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column; 
-            height: 100vh;
-            overflow: hidden;
-        }
-
+        body{background: radial-gradient(circle at 50% 0%, #1a1a3a 0%, #09090e 60%); background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column;  height: 100vh; overflow: hidden;}
         /* --- Scrollbars --- */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+        ::-webkit-scrollbar{width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track{background: transparent; }
+        ::-webkit-scrollbar-thumb{background: rgba(255,255,255,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover{background: rgba(255,255,255,0.4); }
 
         /* --- Header --- */
-        .top-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 24px;
-            background: rgba(15, 15, 25, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border);
-            z-index: 50;
-        }
-
-        .header-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .header-title span { color: var(--primary); }
+        .top-header{display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: rgba(15, 15, 25, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); z-index: 50;}
+        .header-title{font-size: 1.25rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px;}
+        .header-title span{color: var(--primary); }
 
         /* User Menu & API Dropdown */
-        .user-menu-wrapper { position: relative; }
+        .user-menu-wrapper{position: relative; }
         
-        .user-icon-btn {
-            width:35px;    
-            height:35px;   
-            border-radius: 50%;
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .user-icon-btn:hover { 
-            background: rgba(255,255,255,0.1); 
-            border-color: var(--primary); 
-        }
-
-        .user-icon-btn svg { 
-            width: 30px;    
-            height: 30px;   
-            fill: currentColor; 
-        }
-
-        .api-dropdown {
-            position: absolute;
-            top: 50px;
-            right: 0;
-            width: 280px;
-            background: rgba(30, 30, 45, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-            display: none;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 100;
-            transform-origin: top right;
-            animation: fadeIn 0.2s ease;
-        }
-        .api-dropdown.show { display: flex; }
+        .user-icon-btn{width:35px;     height:35px;    border-radius: 50%; background: var(--input-bg); border: 1px solid var(--border); color: var(--text-main); display: block;  cursor: pointer; transition: all 0.2s; position: relative;}
+        .user-icon-btn:hover{ background: rgba(255,255,255,0.1);  border-color: var(--primary);  overflow: hidden;}
+        .user-icon-btn svg{ width:30px;     height: 30px;     fill: currentColor;  position: absolute; left: 4px; top: 4px;}
+        .api-dropdown{position: absolute; top: 50px; right: 0; width: 280px; background: rgba(30, 30, 45, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); display: none; flex-direction: column; gap: 10px; z-index: 100; transform-origin: top right; animation: fadeIn 0.2s ease;}
+        .api-dropdown.show{display: flex; }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .api-dropdown-title { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+        @keyframes fadeIn{from{opacity: 0; transform: scale(0.95); } to{opacity: 1; transform: scale(1); }
+}
+        .api-dropdown-title{font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
 
         /* --- App Container (Main Body) --- */
-        .app-container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
+        .app-container{display: flex; flex: 1; overflow: hidden;}
         /* --- Layout: Sidebars & Main Content --- */
-        .sidebar {
-            width: 320px;
-            background-color: var(--panel-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 24px 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            z-index: 10;
-            flex-shrink: 0;
-        }
+        .sidebar{width: 320px; background-color: var(--panel-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 24px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; z-index: 10; flex-shrink: 0;}
+        .left-sidebar{border-right: 1px solid var(--border); box-shadow: 4px 0 24px rgba(0,0,0,0.4); }
+        .right-sidebar{border-left: 1px solid var(--border); box-shadow: -4px 0 24px rgba(0,0,0,0.4); }
 
-        .left-sidebar { border-right: 1px solid var(--border); box-shadow: 4px 0 24px rgba(0,0,0,0.4); }
-        .right-sidebar { border-left: 1px solid var(--border); box-shadow: -4px 0 24px rgba(0,0,0,0.4); }
-
-        .main-content {
-            flex: 1;
-            padding: 40px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        h2 { font-size: 1.05rem; font-weight: 600; color: var(--text-main); padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 2px; display: flex; align-items: center; gap: 8px;}
-        h2::before { content: ''; display: block; width: 6px; height: 16px; background: var(--primary); border-radius: 4px; }
+        .main-content{flex: 1; padding:20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; min-height:400px;}
+        h2{font-size: 1.05rem; font-weight: 600; color: var(--text-main); padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 2px; display: flex; align-items: center; gap: 8px;}
+        h2::before{content: ''; display: block; width: 6px; height: 16px; background: var(--primary); border-radius: 4px; }
         
         /* --- Controls --- */
-        .control-group { display: flex; flex-direction: column; gap: 8px; }
-        .control-group label { font-size: 0.8rem; font-weight: 500; color: var(--text-muted); display: flex; justify-content: space-between; }
-        .control-group label span { color: var(--primary); font-weight: 600; }
+        .control-group{display: flex; flex-direction: column; gap: 8px; }
+        .control-group label{font-size: 0.8rem; font-weight: 500; color: var(--text-muted); display: flex; justify-content: space-between; }
+        .control-group label span{color: var(--primary); font-weight: 600; }
 
-        input[type="file"], input[type="number"], input[type="text"], input[type="password"], select { 
-            width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; 
-            font-size: 0.9rem; background: var(--input-bg); color: var(--text-main); 
-            cursor: pointer; transition: border-color 0.2s; outline: none;
-        }
-        input[type="text"], input[type="password"], input[type="number"] { cursor: text; font-size: 0.85rem; }
-        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
-        select option { background: #1a1a2e; color: #fff; }
+        input[type="file"], input[type="number"], input[type="text"], input[type="password"], select{ width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;  font-size: 0.9rem; background: var(--input-bg); color: var(--text-main);  cursor: pointer; transition: border-color 0.2s; outline: none;}
+        input[type="text"], input[type="password"], input[type="number"]{cursor: text; font-size: 0.85rem; }
+        input:focus, select:focus{border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
+        select option{background: #1a1a2e; color: #fff; }
 
-        input[type="color"] { width: 100%; height: 40px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; background: var(--input-bg); padding: 2px; }
+        input[type="color"]{width: 100%; height: 40px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; background: var(--input-bg); padding: 2px; }
 
         /* Range Sliders */
-        input[type="range"] { -webkit-appearance: none; background: transparent; width: 100%; cursor: pointer; height: 20px; }
-        input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: var(--primary); margin-top: -5px; box-shadow: 0 0 10px rgba(99, 102, 241, 0.5); transition: transform 0.1s; }
-        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
-
-        button { background-color: var(--primary); color: white; border: none; padding: 12px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 42px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-        button:hover { background-color: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
-        
-        button.secondary { background-color: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border); text-shadow: none; }
-        button.secondary:hover { background-color: rgba(255,255,255,0.1); box-shadow: none; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-
-        #btnAutoFix { background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-        #btnAutoFix:hover { background-color: rgba(245, 158, 11, 0.25); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2); }
-
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        hr { border: 0; border-top: 1px solid var(--border); margin: 8px 0; }
-
+        input[type="range"]{-webkit-appearance: none; background: transparent; width: 100%; cursor: pointer; height: 20px; }
+        input[type="range"]::-webkit-slider-runnable-track{width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; }
+        input[type="range"]::-webkit-slider-thumb{-webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: var(--primary); margin-top: -5px; box-shadow: 0 0 10px rgba(99, 102, 241, 0.5); transition: transform 0.1s; }
+        input[type="range"]::-webkit-slider-thumb:hover{transform: scale(1.2); }
+        button{background-color: var(--primary); color: white; border: none; padding: 12px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 42px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        button:hover{background-color: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }        
+        button.secondary{background-color: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border); text-shadow: none; }
+        button.secondary:hover{background-color: rgba(255,255,255,0.1); box-shadow: none; }
+        button:disabled{opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+        #btnAutoFix{background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        #btnAutoFix:hover{background-color: rgba(245, 158, 11, 0.25); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2); }
+        .btn-grid{display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        hr{border: 0; border-top: 1px solid var(--border); margin: 8px 0; }
         /* --- Editor Area --- */
-        .cropper-area { 
-            width: 100%; 
-            min-height: 250px; 
-            height: auto;
-            background-color: #000; border-radius: 8px; 
-            overflow: hidden; position: relative; border: 1px solid var(--border);
-            transition: border 0.2s; box-shadow: inset 0 4px 20px rgba(0,0,0,0.5);
-            display: flex; align-items: center; justify-content: center;
-        }
-        #imageToCrop { max-width: 100%; display: block; }
-        
-        .preview-area { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 5px; border: 1px solid var(--border); padding: 15px; border-radius: 8px; background: rgba(0,0,0,0.2);}
-        .preview-area label { font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase;}
-        
-        #resultPreviewCanvas { 
-            max-width: 130px; 
-            min-height: 160px; 
-            height: auto;
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            background: #fff;
-            display: none; 
-            border-radius: 4px;
-        }
-
+        .cropper-area{ width: 100%;  min-height: 250px;  height: auto; background-color: #000; border-radius: 8px;  overflow: hidden; position: relative; border: 1px solid var(--border); transition: border 0.2s; box-shadow: inset 0 4px 20px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;}
+        #imageToCrop{max-width: 100%; display: block; }        
+        .preview-area{width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 5px; border: 1px solid var(--border); padding: 15px; border-radius: 8px; background: rgba(0,0,0,0.2);}
+        .preview-area label{font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase;}        
+        #resultPreviewCanvas{ max-width: 130px;  min-height: 160px;  height: auto; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 8px 24px rgba(0,0,0,0.5); background: #fff; display: none;  border-radius: 4px;}
         /* --- A4 Sheet Preview --- */
-        .a4-container { display: flex; flex-direction: column; gap: 40px; width: 100%; align-items: center; padding-bottom: 40px; }
-        .a4-sheet { 
-            width: 100%; max-width: 210mm; aspect-ratio: 210 / 297; background: var(--sheet-bg); padding: 2%; 
-            display: grid; grid-template-columns: repeat(6, 1fr); gap: 1%; align-content: start; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; 
-            border-radius: 2px;
+        .a4-container{display: flex; flex-direction: column; gap: 40px; width: 100%; align-items: center; padding-bottom: 40px; }
+        .a4-sheet{ width: 100%; max-width: 210mm; aspect-ratio: 210 / 297; background: var(--sheet-bg); padding: 2%;  display: grid; grid-template-columns: repeat(6, 1fr); gap: 1%; align-content: start;  box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative;  border-radius: 2px;}        
+        /* UPDATED: Clickable Photo Effect */
+        .photo-wrapper{ position: relative; width: 100%; border: 1px solid #000;  overflow: hidden; background: #f9fafb;  cursor: pointer; transition: transform 0.1s, box-shadow 0.1s;}
+        .photo-wrapper:hover{transform: scale(0.96); box-shadow: 0 0 0 3px var(--primary); z-index: 10;}        
+        .photo-wrapper img{position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        #yellowSlider::-webkit-slider-runnable-track{background: linear-gradient(to right, #3b82f6, rgba(255,255,255,0.2), #eab308); }
+        @media (max-width: 992px){
+        .app-container{flex-direction: column; height: auto; overflow-y: auto; }
+        body{overflow-y: auto; }
+        .sidebar{width: 100%; box-shadow: none; border: none; height: auto; overflow: visible; padding: 20px; backdrop-filter: none; background: #13131f; }
+        .left-sidebar, .right-sidebar{border-bottom: 1px solid var(--border); }
+        .main-content{padding: 20px; }
+        .cropper-area{min-height: 200px; }
         }
-        .photo-wrapper { position: relative; width: 100%; border: 1px solid #000; overflow: hidden; background: #f9fafb; }
-        .photo-wrapper img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-
-        #yellowSlider::-webkit-slider-runnable-track { background: linear-gradient(to right, #3b82f6, rgba(255,255,255,0.2), #eab308); }
-
-        @media (max-width: 992px) {
-            .app-container { flex-direction: column; height: auto; overflow-y: auto; }
-            body { overflow-y: auto; }
-            .sidebar { width: 100%; box-shadow: none; border: none; height: auto; overflow: visible; padding: 20px; backdrop-filter: none; background: #13131f; }
-            .left-sidebar, .right-sidebar { border-bottom: 1px solid var(--border); }
-            .main-content { padding: 20px; }
-            .cropper-area { min-height: 200px; }
-        }
-
-        @media print {
-            @page { size: A4; margin: 0; }
-            body { background: white !important; display: block; overflow: visible; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .top-header, .sidebar { display: none !important; }
-            .app-container { display: block; overflow: visible; }
-            .main-content { padding: 0; overflow: visible; display: block; background: white;}
-            .a4-container { gap: 0; display: block; padding-bottom: 0;}
-            .a4-sheet { box-shadow: none; margin: 0; width: 210mm; height: 297mm; padding: 15px; page-break-after: always; border-radius: 0;}
-            .photo-wrapper { border: 1px solid black !important; }
+        @media print{
+            @page{size: A4; margin: 0; }
+            body{background: white !important; display: block; overflow: visible; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .top-header, .sidebar{display: none !important; }
+            .app-container{display: block; overflow: visible; }
+            .main-content{padding: 0; overflow: visible; display: block; background: white;}
+            .a4-container{gap: 0; display: block; padding-bottom: 0;}
+            .a4-sheet{box-shadow: none; margin: 0; width: 210mm; height: 297mm; padding: 15px; page-break-after: always; border-radius: 0;}
+            .photo-wrapper{border: 1px solid black !important; }
+            .pro-tip{display: none !important; } 
         }
     </style>
 </head>
 <body>
-
+ 
     <header class="top-header">
         <div class="header-title">
-            📸 <span>Atulit</span> Studio
+            📸 <span>Rahul</span> Studio
         </div>
         
         <div class="user-menu-wrapper">
@@ -266,7 +138,7 @@
                 <div class="api-dropdown-title">Remove.bg API Settings</div>
                 <div class="control-group">
                     <select id="apiSlotSelect">
-                        <option value="0">Slot 1 - API Key</option>
+                        <option value="L2WTCZXgjVkXMLshHeoWXk58">Slot 1 - API Key</option>
                         <option value="1">Slot 2 - API Key</option>
                         <option value="2">Slot 3 - API Key</option>
                         <option value="3">Slot 4 - API Key</option>
@@ -321,7 +193,26 @@
             </div>
 
             <hr>
+            
+             
 
+            <div class="control-group" style="flex-direction: row; align-items: center; justify-content: space-between;">
+                <label style="flex-shrink: 0; margin-right: 12px; margin-bottom: 0;">Arrangement</label>
+                <select id="gridFlowSelect" style="flex: 1;">
+                    <option value="row" selected>Row-wise</option>
+                    <option value="column">Column-wise</option>
+                </select>
+            </div>
+
+            <div class="control-group" style="flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <label style="flex-shrink: 0; margin-right: 12px; margin-bottom: 0;">Rotate Photos 90°</label>
+                <input type="checkbox" id="rotateSheetPhotos" style="width: 20px; height: 20px; cursor: pointer;">
+            </div>
+
+            <button id="btnRearrangeLayout" class="secondary" style="margin-bottom: 10px;">🔄 Update Existing Sheet Layout</button>
+
+
+            <hr>
             <div class="control-group">
                 <button id="btnRemoveBg" class="secondary">✂️ Auto-Remove BG</button>
             </div>
@@ -333,22 +224,29 @@
                 </div>
             </div>
 
-            <hr>
-           
-            <div class="preview-area">
-                <label>Live Edit Preview</label>
-                <canvas id="resultPreviewCanvas"></canvas>
-            </div>
         </div>
 
         <div class="main-content">
+            <!-- UPDATED: Pro Tip Alert -->
+            <div class="pro-tip" style="width: 100%; max-width: 210mm; background: rgba(99, 102, 241, 0.1); color: #818cf8; padding:5px 10px; border-radius: 5px; margin-bottom:10px; border: 1px solid rgba(99, 102, 241, 0.2); font-size: 0.8rem; text-align: center;">
+                💡 <b>Pro Tip:</b> Sheet par kisi bhi photo par click karein, uski puri <b>Row ek sath 90° Rotate</b> ho jayegi!
+            </div>
+
             <div class="a4-container" id="a4Container">
                 <div class="a4-sheet"></div>
             </div>
         </div>
 
         <div class="sidebar right-sidebar"> 
+            
+           
+            <div class="preview-area">
+                <label>Live Edit Preview</label>
+                <canvas id="resultPreviewCanvas"></canvas>
+            </div>
 
+            <hr>
+        
             <button id="btnAutoFix" class="secondary">✨ Auto Enhance</button>
 
             <div class="control-group">
@@ -379,24 +277,6 @@
             <button id="btnResetFilters" class="secondary" style="margin-top: 4px;">Reset Filters</button>
 
             <hr>
-            
-            <h2>Export</h2>
-
-            <div class="control-group" style="flex-direction: row; align-items: center; justify-content: space-between;">
-                <label style="flex-shrink: 0; margin-right: 12px; margin-bottom: 0;">Arrangement</label>
-                <select id="gridFlowSelect" style="flex: 1;">
-                    <option value="row" selected>Row-wise</option>
-                    <option value="column">Column-wise</option>
-                </select>
-            </div>
-
-            <!-- NAYA: Rotation Checkbox -->
-            <div class="control-group" style="flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <label style="flex-shrink: 0; margin-right: 12px; margin-bottom: 0;">Rotate Photos 90°</label>
-                <input type="checkbox" id="rotateSheetPhotos" style="width: 20px; height: 20px; cursor: pointer;">
-            </div>
-
-            <button id="btnRearrangeLayout" class="secondary" style="margin-bottom: 10px;">🔄 Update Existing Sheet Layout</button>
 
             <div class="control-group">
                 <div style="display: flex; gap: 8px;">
@@ -729,7 +609,6 @@
                     if (gridFlowSelect.value === 'column') {
                         sheet.style.gridAutoFlow = 'column';
                         let rows = Math.ceil(maxPerSheet / cols);
-                        // NAYA: 'min-content' ensures equal gaps and sticking to the top
                         sheet.style.gridTemplateRows = `repeat(${rows}, min-content)`;
                     } else {
                         sheet.style.gridAutoFlow = 'row';
@@ -747,13 +626,13 @@
                     photoWrapper.className = 'photo-wrapper';
                     photoWrapper.style.aspectRatio = `${currentPhotoWidthCm} / ${currentPhotoHeightCm}`;
                     
-                    // NAYA: Metadata for rotation
                     photoWrapper.dataset.origW = currentPhotoWidthCm;
                     photoWrapper.dataset.origH = currentPhotoHeightCm;
+                    photoWrapper.dataset.rotated = "false"; // Track rotation state
 
                     const imgNode = document.createElement('img');
                     imgNode.src = finalDataUrl;
-                    imgNode.dataset.originalSrc = finalDataUrl; // Saved original dataURL for clean rotation
+                    imgNode.dataset.originalSrc = finalDataUrl; 
                     
                     photoWrapper.appendChild(imgNode);
                     fragment.appendChild(photoWrapper);
@@ -811,7 +690,6 @@
             }, 50);
         });
 
-
         // --- NAYA FUNCTION: Image ko High Quality me 90° Rotate Karne ke liye ---
         function rotateImage90(src, callback) {
             const img = new Image();
@@ -828,7 +706,7 @@
             img.src = src;
         }
 
-        // --- NAYA LOGIC: Re-arrange and Rotate Existing Layout ---
+        // --- LOGIC: Bulk Re-arrange and Rotate via Sidebar Button ---
         btnRearrangeLayout.addEventListener('click', () => {
             const sheets = document.querySelectorAll('.a4-sheet');
             if (sheets.length === 0 || sheets[0].children.length === 0) {
@@ -855,7 +733,6 @@
                     if (selectedFlow === 'column') {
                         sheet.style.gridAutoFlow = 'column';
                         let rows = Math.ceil(maxPerSheet / cols);
-                        // min-content force karga ki photo upper (top) rahe aur exact height le, to space equal rahega
                         sheet.style.gridTemplateRows = `repeat(${rows}, min-content)`; 
                     } else {
                         sheet.style.gridAutoFlow = 'row';
@@ -889,17 +766,59 @@
                 }
 
                 if (isRotated) {
-                    wrapper.style.aspectRatio = `${h} / ${w}`; // Aspect ratio bhi ulta karenge
+                    wrapper.dataset.rotated = "true";
+                    wrapper.style.aspectRatio = `${h} / ${w}`; 
                     rotateImage90(img.dataset.originalSrc, (newSrc) => {
                         img.src = newSrc;
                         processed++;
                         if(processed === imagesToUpdate.length) updateGridStyles();
                     });
                 } else {
-                    wrapper.style.aspectRatio = `${w} / ${h}`; // Normal ratio wapas
+                    wrapper.dataset.rotated = "false";
+                    wrapper.style.aspectRatio = `${w} / ${h}`; 
                     img.src = img.dataset.originalSrc;
                     processed++;
                     if(processed === imagesToUpdate.length) updateGridStyles();
+                }
+            });
+        });
+
+        // --- NAYA LOGIC: Click On Any Photo to Rotate Entire Row ---
+        a4Container.addEventListener('click', (e) => {
+            const clickedWrapper = e.target.closest('.photo-wrapper');
+            if (!clickedWrapper) return;
+
+            const sheet = clickedWrapper.parentElement;
+            const clickedRect = clickedWrapper.getBoundingClientRect();
+            
+            // Find all photos in the exact same visual horizontal row
+            const tolerance = 5; 
+            const rowItems = Array.from(sheet.querySelectorAll('.photo-wrapper')).filter(item => {
+                const itemRect = item.getBoundingClientRect();
+                return Math.abs(itemRect.top - clickedRect.top) <= tolerance;
+            });
+
+            // Toggle state: Agar pehle se rotated hai toh normal karo, warna rotate karo
+            const isCurrentlyRotated = clickedWrapper.dataset.rotated === 'true';
+            const targetState = !isCurrentlyRotated;
+
+            rowItems.forEach(item => {
+                item.dataset.rotated = targetState; 
+                
+                const w = item.dataset.origW || currentPhotoWidthCm;
+                const h = item.dataset.origH || currentPhotoHeightCm;
+                const img = item.querySelector('img');
+
+                if (targetState) {
+                    // Rotate kar rahe hain
+                    item.style.aspectRatio = `${h} / ${w}`; 
+                    rotateImage90(img.dataset.originalSrc, (newSrc) => {
+                        img.src = newSrc;
+                    });
+                } else {
+                    // Wapas Normal kar rahe hain
+                    item.style.aspectRatio = `${w} / ${h}`; 
+                    img.src = img.dataset.originalSrc; 
                 }
             });
         });

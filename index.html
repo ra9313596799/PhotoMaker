@@ -2,572 +2,732 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document Scanner</title>
-     <!-- Service worker register karne ke liye -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- ================= SEO META TAGS ================= -->
+    <title>Professional Photo Maker - Passport & ID Photo Generator</title>
+    <meta name="description" content="Create professional passport, stamp, and custom-size photos instantly. Free AI background removal, auto color correction, and A4 print sheet generator by Atulit Studio.">
+    <meta name="keywords" content="passport photo maker, professional photo generator, remove background, auto fix photo, ID photo creator, A4 photo sheet, passport size photo online">
+    <meta name="author" content="Atulit Studio">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourwebsite.com/">
+    <meta property="og:title" content="Professional Photo Maker - Free Passport Photo Generator">
+    <meta property="og:description" content="Create professional passport, stamp, and custom-size photos instantly. Free AI background removal and A4 print sheets.">
+    <meta property="og:image" content="icon-512x512.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://yourwebsite.com/">
+    <meta property="twitter:title" content="Professional Photo Maker - Free Passport Photo Generator">
+    <meta property="twitter:description" content="Create professional passport, stamp, and custom-size photos instantly. Free AI background removal and A4 print sheets.">
+    <meta property="twitter:image" content="icon-512x512.png">
+
+    <!-- ================= PWA META TAGS ================= -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#09090e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Photo Maker">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
+    <link rel="icon" type="image/png" href="icon-192x192.png">
+
     <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js');
+            navigator.serviceWorker.register('sw.js').then(registration => {
+                console.log('ServiceWorker registration successful');
+            }).catch(err => {
+                console.log('ServiceWorker registration failed: ', err);
+            });
         });
     }
     </script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- OpenCV.js & jsPDF -->
-    <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady();"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
- 
-    
+
     <style>
-        :root {
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --bg-workspace: transparent;
-            --surface: rgba(30, 30, 45, 0.5);
-            --surface-hover: rgba(255, 255, 255, 0.05);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: rgba(255, 255, 255, 0.1);
-            --danger: #ef4444;
-            --danger-bg: rgba(239, 68, 68, 0.15);
-            --success: #10b981;
-            --radius: 12px;
-        }
+        :root{--primary: #6366f1;  --primary-hover: #818cf8; --bg-base: #09090e; --panel-bg: rgba(26, 26, 46, 0.6);  --text-main: #f8fafc; --text-muted: #94a3b8; --border: rgba(255, 255, 255, 0.12); --input-bg: rgba(0, 0, 0, 0.4); --sheet-bg: #ffffff;}
+        *{box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body{background: radial-gradient(circle at 50% 0%, #1a1a3a 0%, #09090e 60%); background-color: var(--bg-base); color: var(--text-main); display: flex; flex-direction: column;  height: 100vh; overflow: hidden;}
         
-        body { 
-            background: radial-gradient(circle at 50% 0%, #1a1a3a 0%, #09090e 60%); 
-            color: var(--text-main); 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-        }
+        ::-webkit-scrollbar{width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track{background: transparent; }
+        ::-webkit-scrollbar-thumb{background: rgba(255,255,255,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover{background: rgba(255,255,255,0.4); }
 
-        #loading {
-            position: fixed; inset: 0; background: #09090e; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; z-index: 1000; font-weight: 600; font-size: 1.2rem; color: var(--primary);
-        }
-        
-        .spinner {
-            width: 40px; height: 40px; border: 4px solid var(--border); border-top: 4px solid var(--primary);
-            border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .top-header{display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: rgba(15, 15, 25, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); z-index: 50; flex-shrink: 0;}
+        .header-title{font-size: 1.25rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px;}
+        .header-title span{color: var(--primary); }
 
-        header {
-            display: flex; align-items: center; justify-content: space-between; padding: 16px 20px;
-            background: rgba(9, 9, 14, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border); z-index: 10;
-        }
-        header h1 { font-size: 1.25rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
-        header h1 i { color: var(--primary); }
+        .user-menu-wrapper{position: relative; }
         
-        .upload-btn {
-            background: var(--primary); color: white; padding: 10px 20px; border-radius: 8px; font-weight: 500;
-            cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; font-size: 0.95rem;
-        }
-        .upload-btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
-        input[type="file"] { display: none; }
+        .user-icon-btn{width:35px;    height:35px;   border-radius: 50%; background: var(--input-bg); border: 1px solid var(--border); color: var(--text-main); display: block;  cursor: pointer; transition: all 0.2s; position: relative;}
+        .user-icon-btn:hover{ background: rgba(255,255,255,0.1);  border-color: var(--primary);  overflow: hidden;}
+        .user-icon-btn svg{ width:30px;     height: 30px;    fill: currentColor;  position: absolute; left: 4px; top: 4px;}
+        .api-dropdown{position: absolute; top: 50px; right: 0; width: 280px; background: rgba(30, 30, 45, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); display: none; flex-direction: column; gap: 10px; z-index: 100; transform-origin: top right; animation: fadeIn 0.2s ease;}
+        .api-dropdown.show{display: flex; }
+        
+        @keyframes fadeIn{from{opacity: 0; transform: scale(0.95); } to{opacity: 1; transform: scale(1); } }
+        .api-dropdown-title{font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
 
-        .app-container { display: flex; flex: 1; overflow: hidden; }
+        .app-container{display: flex; flex: 1; overflow: hidden;}
+        
+        .sidebar{background-color: var(--panel-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding:10px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; z-index: 10; flex-shrink: 0;}
+        .left-sidebar{width:280px; border-right: 1px solid var(--border); box-shadow: 4px 0 24px rgba(0,0,0,0.4); }
+        .right-sidebar{width:400px; border-left: 1px solid var(--border); box-shadow: -4px 0 24px rgba(0,0,0,0.4); }
 
-        .workspace {
-            flex: 1; background: var(--bg-workspace); display: flex; justify-content: center; align-items: center;
-            padding: 30px; position: relative; overflow: auto;
-        }
+        .main-content{flex: 1; padding:10px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; min-height:400px;}
         
-        /* Updated Canvas Wrapper for A4 Size & 0.8 Opacity */
-        .canvas-wrapper {
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8); 
-            border-radius: 4px; 
-            overflow: hidden;
-            background: rgba(255, 255, 255, 0.8);
-            aspect-ratio: 1 / 1.4142; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            max-height: 75vh; 
-        }
-        
-        /* Updated Canvas styling to fit A4 Wrapper */
-        canvas { 
-            display: block; 
-            cursor: crosshair; 
-            max-width: 100%; 
-            max-height: 100%;
-            object-fit: contain; 
-        }
+        .control-group{display: flex; flex-direction: column; gap: 6px; }
+        .control-group label{font-size: 0.75rem; font-weight: 500; color: var(--text-muted); display: flex; justify-content: space-between; }
+        .control-group label span{color: var(--primary); font-weight: 600; }
 
-        .sidebar {
-            width: 380px; background: var(--surface); display: flex; flex-direction: column;
-            border-left: 1px solid var(--border); height: 100%; backdrop-filter: blur(10px);
+        input[type="file"], input[type="number"], input[type="text"], input[type="password"], select{ width: 100%; padding: 10px 10px; border: 1px solid var(--border); border-radius: 8px;  font-size: 0.85rem; background: var(--input-bg); color: var(--text-main);  cursor: pointer; transition: border-color 0.2s; outline: none;}
+        input[type="text"], input[type="password"], input[type="number"]{cursor: text; }
+        input:focus, select:focus{border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
+        select option{background: #1a1a2e; color: #fff; }
+        input[type="color"]{width: 100%; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; background: var(--input-bg); padding: 2px; }
+
+        input[type="range"]{-webkit-appearance: none; background: transparent; width: 100%; cursor: pointer; height: 20px; }
+        input[type="range"]::-webkit-slider-runnable-track{width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; }
+        input[type="range"]::-webkit-slider-thumb{-webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: var(--primary); margin-top: -5px; box-shadow: 0 0 10px rgba(99, 102, 241, 0.5); transition: transform 0.1s; }
+        input[type="range"]::-webkit-slider-thumb:hover{transform: scale(1.2); }
+        
+        button{background-color: var(--primary); color: white; border: none; padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 6px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        button:hover{background-color: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }        
+        button.secondary{background-color: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border); text-shadow: none; }
+        button.secondary:hover{background-color: rgba(255,255,255,0.1); box-shadow: none; }
+        button:disabled{opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+        
+        #btnAutoFix{background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        #btnAutoFix:hover{background-color: rgba(245, 158, 11, 0.25); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2); }
+        
+        .btn-toggle-active { background-color: #10B981 !important; color: white !important; border-color: #059669 !important; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+
+        hr{border: 0; border-top: 1px solid var(--border); margin: 4px 0; }
+        
+        .cropper-area{ width: 100%;  min-height: 250px;  height: auto; background-color: #000; border-radius: 8px;  overflow: hidden; position: relative; border: 1px solid var(--border); box-shadow: inset 0 4px 20px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;}
+        #imageToCrop{max-width: 100%; display: block; }        
+        .preview-area{width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 5px; border: 1px solid var(--border); padding: 15px; border-radius: 8px; background: rgba(0,0,0,0.2);}
+        .preview-area label{font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase;}        
+        #resultPreviewCanvas{ max-width: 130px;  min-height: 160px;  height: auto; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 8px 24px rgba(0,0,0,0.5); background: #fff; display: none;  border-radius: 4px;}
+        
+        .a4-container{display: flex; flex-direction: column; gap:20px; width: 100%; align-items: center; padding-bottom: 40px; }
+        .a4-sheet{ width: 100%; max-width: 210mm; aspect-ratio: 210 / 297; background: var(--sheet-bg); padding:0;  display: grid; grid-template-columns: repeat(6, 1fr); gap: 1%; align-content: start;  box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative;  border-radius: 2px;}        
+        
+        .photo-wrapper{ position: relative; width: 100%; border: 1px solid #000;  overflow: hidden; background: #f9fafb;  cursor: pointer; transition: transform 0.1s, box-shadow 0.1s;}
+        .photo-wrapper:hover{transform: scale(0.96); box-shadow: 0 0 0 3px var(--primary); z-index: 10;}        
+        .photo-wrapper img{position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        
+        /* Gradient sliders */
+        #yellowSlider::-webkit-slider-runnable-track{background: linear-gradient(to right, #3b82f6, rgba(255,255,255,0.2), #eab308); }
+        #hdSlider::-webkit-slider-runnable-track{background: linear-gradient(to right, rgba(255,255,255,0.1), #10B981); }
+        #smoothSlider::-webkit-slider-runnable-track{background: linear-gradient(to right, rgba(255,255,255,0.1), #EC4899); }
+
+        .bottom-action-bar { background: rgba(19, 19, 31, 0.95); backdrop-filter: blur(16px); border-top: 1px solid var(--border); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; gap: 15px; z-index: 100; flex-shrink: 0; }
+        .action-left { display: flex; align-items: center; gap: 10px; }
+        .action-right { display: flex; align-items: center; gap: 10px; }
+        .action-right button { min-height: 42px; }
+
+        @media (max-width: 992px){
+            .app-container{flex-direction: column; height: auto; overflow-y: auto; }
+            .left-sidebar { order: 1; }
+            .right-sidebar { order: 2; }
+            .main-content { order: 3; }
+            body{overflow-y: auto; }
+            .sidebar{width: 100%; box-shadow: none; border: none; height: auto; overflow: visible; padding: 20px; backdrop-filter: none; background: #13131f; }
+            .left-sidebar, .right-sidebar{border-bottom: 1px solid var(--border); }
+            .main-content{padding: 20px; }
+            .cropper-area{min-height: 200px; }
+            .bottom-action-bar { flex-direction: column; padding: 12px; padding-bottom: max(15px, env(safe-area-inset-bottom)); gap: 12px; position: sticky; bottom: 0; width: 100%; }
+            .action-left { width: 100%; justify-content: stretch; }
+            .action-left > div { width: 100%; }
+            .action-right { width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+            .action-right button { flex: 1 1 calc(33% - 10px); font-size: 0.8rem; padding: 8px 4px; }
         }
-
-        .tabs { display: flex; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.2); padding: 5px 5px 0 5px; }
-        .tab-btn {
-            flex: 1; padding: 15px; text-align: center; font-weight: 600; color: var(--text-muted); cursor: pointer;
-            border: none; background: none; font-size: 0.95rem; border-radius: 8px 8px 0 0; transition: 0.2s;
-        }
-        .tab-btn:hover { color: var(--text-main); background: var(--surface-hover); }
-        .tab-btn.active { color: var(--primary); background: transparent; border-bottom: 2px solid var(--primary); }
-        
-        .tab-content { flex: 1; overflow-y: auto; display: none; flex-direction: column; padding: 25px; }
-        .tab-content.active { display: flex; }
-
-        .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; margin-bottom: 15px; }
-        
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
-        
-        button {
-            padding: 12px 15px; border: none; border-radius: 8px; font-weight: 500; font-size: 0.9rem;
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;
-        }
-        button:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
-        
-        .btn-outline { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-main); }
-        .btn-outline:hover { background: rgba(255,255,255,0.1); }
-        
-        .btn-crop { background: var(--primary); color: white; }
-        .btn-crop:hover { background: var(--primary-hover); }
-        
-        .btn-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
-        .btn-danger:hover { background: rgba(239, 68, 68, 0.25); }
-
-        .btn-add { background: var(--success); color: white; width: 100%; margin-top: auto; padding: 15px; font-size: 1rem; }
-        .btn-add:hover { background: #059669; }
-
-        .slider-group { margin-bottom: 20px; }
-        .slider-header { display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 500; margin-bottom: 10px; color: var(--text-main); }
-        
-        input[type="range"] {
-            -webkit-appearance: none; width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 5px; outline: none;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%;
-            background: var(--primary); cursor: pointer; transition: 0.1s; box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
-        }
-        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
-
-        .gallery-header-info { text-align: center; margin-bottom: 20px; font-size: 0.95rem; color: var(--text-muted); }
-        
-        .thumbnail-list { display: flex; flex-direction: column; gap: 15px; flex: 1; }
-        .thumb-card {
-            background: rgba(0,0,0,0.2); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column;
-            gap: 10px; border: 1px solid var(--border);
-        }
-        .thumb-card-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; font-weight: 600; }
-        .thumb-card img { width: 100%; height: 140px; object-fit: contain; background: #fff; border-radius: 6px; border: 1px solid var(--border); }
-        
-        .btn-export-pdf { background: var(--primary); color: white; width: 100%; padding: 15px; font-size: 1rem; margin-top: 20px; }
-        .btn-export-pdf:hover { background: var(--primary-hover); }
-
-        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
-        .empty-state i { font-size: 3rem; margin-bottom: 15px; color: rgba(255,255,255,0.1); }
-
-        @media (max-width: 900px) {
-            .app-container { flex-direction: column; }
-            .workspace { flex: 0 0 45vh; padding: 15px; min-height: 250px; }
-            .sidebar { width: 100%; flex: 1; min-height: 0; border-left: none; border-top: 1px solid var(--border); }
+        @media print{
+            @page{size: A4; margin: 0; }
+            body{background: white !important; display: block; overflow: visible; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .top-header, .sidebar, .bottom-action-bar {display: none !important; }
+            .app-container{display: block; overflow: visible; }
+            .main-content{padding: 0; overflow: visible; display: block; background: white;}
+            .a4-container{gap: 0; display: block; padding-bottom: 0;}
+            .a4-sheet{box-shadow: none; margin: 0; width: 210mm; height: 297mm; padding: 15px; page-break-after: always; border-radius: 0;}
+            .photo-wrapper{border: 1px solid black !important; }
         }
     </style>
 </head>
 <body>
-
-    <div id="loading">
-        <div class="spinner"></div>
-        Booting Scanner...
-    </div>
-
-    <header>
-        <h1><i class="fa-solid fa-file-signature"></i> DocuScan Pro</h1>
-        <label class="upload-btn">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Upload Document
-            <input type="file" id="uploadInput" accept="image/*">
-        </label>
+ 
+    <header class="top-header">
+        <div class="header-title">📸 <span>Atulit</span> Studio</div>
+        <div class="user-menu-wrapper">
+            <button id="userMenuBtn" class="user-icon-btn" title="API Settings">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"/>
+                </svg>
+            </button>
+            <div id="apiDropdown" class="api-dropdown">
+                <div class="api-dropdown-title">Remove.bg API Settings</div>
+                <div class="control-group">
+                    <select id="apiSlotSelect">
+                        <option value="0">Slot 1 - API Key</option>
+                        <option value="1">Slot 2 - API Key</option>
+                        <option value="2">Slot 3 - API Key</option>
+                        <option value="3">Slot 4 - API Key</option>
+                    </select>
+                    <input type="password" id="apiKeyInput" placeholder="Paste remove.bg API key...">
+                </div>
+            </div>
+        </div>
     </header>
 
     <div class="app-container">
-        <!-- Workspace -->
-        <div class="workspace">
-            <div class="canvas-wrapper">
-                <canvas id="canvas"></canvas>
+        <div class="sidebar left-sidebar"> 
+            <div class="control-group"><input type="file" id="imageInput" accept="image/*"></div>
+            <div class="cropper-area"><img id="imageToCrop" src="" alt=""></div>
+
+            <div style="display: flex; gap: 10px; width: 100%; align-items: flex-end;">
+                <div class="control-group" style="width: 45%;">
+                    <label style="margin-bottom: 2px;">Photo Size</label>
+                    <select id="sizeSelect" style="padding: 10px 8px;">
+                        <option value="passport" selected>Passport</option>
+                        <option value="stamp">Stamp</option>
+                        <option value="2x2">2x2 Inch</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+                <div class="control-group" style="width: 55%;">
+                    <label style="margin-bottom: 2px;">Rotate <span id="straightenVal">0°</span></label>
+                    <input type="range" id="straightenSlider" min="-180" max="180" value="0" step="1" title="360° Rotation" style="margin-bottom: 10px;">
+                </div>
+            </div>
+            
+            <div class="control-group" id="customSizeArea" style="display: none; margin-top: -4px;">
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <select id="customUnit" style="width: 80px;">
+                        <option value="cm">cm</option>
+                        <option value="mm">mm</option>
+                        <option value="inch">in</option>
+                    </select>
+                    <input type="number" id="customWidth" placeholder="W" step="0.1">
+                    <span style="color: var(--text-muted);">x</span>
+                    <input type="number" id="customHeight" placeholder="H" step="0.1">
+                </div>
+            </div>
+            <hr>
+            <div style="display: flex; gap: 10px; width: 100%; align-items: stretch;">
+                <div style="width: 50%;">
+                    <button id="btnRemoveBg" class="secondary" style="width: 100%; height: 42px; font-size: 0.8rem; padding: 0 5px;">✂️Remove BG</button>
+                </div>
+                <div style="width: 50%; display: flex; gap: 5px;">
+                    <input type="color" id="bgColorPicker" value="#ffffff" style="width: 40px; height: 42px; padding: 2px; flex-shrink: 0;">
+                    <button id="btnApplyColor" class="secondary" style="flex: 1; height: 42px; font-size: 0.8rem; padding: 0 5px;">Fill Color</button>
+                </div>
             </div>
         </div>
 
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('adjust')"><i class="fa-solid fa-sliders"></i> Adjust</button>
-                <button class="tab-btn" onclick="switchTab('pages')"><i class="fa-solid fa-layer-group"></i> Pages (<span id="pageCount">0</span>)</button>
+        <div class="main-content">
+            <div class="a4-container" id="a4Container"><div class="a4-sheet"></div></div>
+        </div>
+
+        <div class="sidebar right-sidebar"> 
+            <div class="preview-area">
+                <label>Live Edit Preview</label>
+                <canvas id="resultPreviewCanvas"></canvas>
             </div>
-
-            <!-- Tab 1: Adjust -->
-            <div id="tab-adjust" class="tab-content active">
-                <div class="section-title">Geometry</div>
-                <div class="action-grid">
-                    <button id="cropBtn" class="btn-crop" disabled><i class="fa-solid fa-crop-simple"></i> Crop A4</button>
-                    <button id="resetBtn" class="btn-danger" disabled><i class="fa-solid fa-rotate-left"></i> Reset</button>
-                </div>
-
-                <div class="section-title">Enhancements</div>
-                <div class="slider-group">
-                    <div class="slider-header"><span>Brightness</span> <i class="fa-solid fa-sun"></i></div>
-                    <input type="range" id="brightness" min="-100" max="100" value="0">
-                </div>
-                
-                <div class="slider-group">
-                    <div class="slider-header"><span>Contrast</span> <i class="fa-solid fa-circle-half-stroke"></i></div>
-                    <input type="range" id="contrast" min="-100" max="100" value="0">
-                </div>
-
-                <button id="bwBtn" class="btn-outline" style="width: 100%; margin-bottom: 20px;" disabled>
-                    <i class="fa-solid fa-droplet-slash"></i> Toggle Black & White
-                </button>
-
-                <div style="flex: 1; min-height: 20px;"></div> 
-
-                <div class="action-grid" style="margin-bottom: 0;">
-                    <button id="downloadCurrentJpg" class="btn-outline" disabled><i class="fa-solid fa-download"></i> Save JPG</button>
-                    <button id="addPageBtn" class="btn-add" disabled><i class="fa-solid fa-plus"></i> Add Page</button>
-                </div>
+            <hr>
+            <div style="display: flex; gap: 10px; margin-top: 5px; width: 100%;">
+                <button id="btnSmartFix" style="flex: 1; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; font-weight: 700; border: none; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); font-size: 0.8rem; padding: 10px 5px;">✨ Magic Fix</button>
+                <button id="btnAutoColor" class="secondary" style="flex: 1; border-radius: 8px; font-size: 0.8rem; padding: 10px 5px;">🌈 Auto Color: OFF</button>
             </div>
-
-            <!-- Tab 2: Pages Gallery -->
-            <div id="tab-pages" class="tab-content">
-                <div class="gallery-header-info">
-                    Documents ready to be merged into a PDF.
-                </div>
-                
-                <div class="thumbnail-list" id="thumbnailList">
-                    <div class="empty-state" id="emptyGallery">
-                        <i class="fa-regular fa-folder-open"></i>
-                        <p>No pages added yet.<br>Crop an image and click "Add Page".</p>
-                    </div>
-                </div>
-
-                <div style="flex: 1;"></div>
-                <button id="downloadPdfBtn" class="btn-export-pdf" disabled><i class="fa-solid fa-file-pdf"></i> Export Full PDF</button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px 10px; margin-top: 15px;">
+                <div class="control-group"><label>Clarity <span id="hdVal">0%</span></label><input type="range" id="hdSlider" min="0" max="100" value="0"></div>
+                <div class="control-group"><label>Smooth <span id="smoothVal">0%</span></label><input type="range" id="smoothSlider" min="0" max="100" value="0"></div>
+                <div class="control-group"><label>Anti-Yellow <span id="yellowVal">0</span></label><input type="range" id="yellowSlider" min="-100" max="100" value="0" step="1"></div>
+                <div class="control-group"><label>Temperature <span id="warmthVal">Neutral</span></label><input type="range" id="warmth" min="-50" max="50" value="0" step="1"></div>
+                <div class="control-group"><label>Brightness <span id="brightnessVal">100%</span></label><input type="range" id="brightness" min="0" max="200" value="100"></div>
+                <div class="control-group"><label>Contrast <span id="contrastVal">100%</span></label><input type="range" id="contrast" min="0" max="200" value="100"></div>
+                <div class="control-group"><label>Saturation <span id="saturateVal">100%</span></label><input type="range" id="saturate" min="0" max="200" value="100"></div>
             </div>
+            <button id="btnResetFilters" class="secondary" style="margin-top: 15px;">Reset All Tools</button>
+        </div>
+    </div> 
+    
+    <div class="bottom-action-bar">
+        <div class="action-left">
+            <div style="display: flex; gap: 8px; width: 100%;">
+                <input type="number" id="quantityInput" value="6" min="1" max="150" style="width: 70px; text-align: center; height: 42px;">
+                <button id="btnAddToA4" style="flex: 1; min-width: 150px;">➕ Add to Sheet</button>
+            </div>
+        </div>
+        <div class="action-right">
+            <button id="btnClearEditor" class="secondary">❌ Clear Edit</button>
+            <button id="btnClearSheets" class="secondary">🗑️ Clear Sheets</button>
+            <button id="btnPrint" style="background-color: #10B981; color: #fff;">🖨️ Print</button>
+            <button id="btnDownloadJpg" style="background-color: #F59E0B; color: #fff;">🖼️ JPG</button>
+            <button id="btnDownloadPdf" style="background-color: #EF4444; color: #fff;">📄 PDF</button>
         </div>
     </div>
 
+    <canvas id="filterCanvas" style="display: none;"></canvas>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <script>
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            if(tabName === 'adjust') {
-                document.querySelectorAll('.tab-btn')[0].classList.add('active');
-                document.getElementById('tab-adjust').classList.add('active');
-            } else {
-                document.querySelectorAll('.tab-btn')[1].classList.add('active');
-                document.getElementById('tab-pages').classList.add('active');
-            }
-        }
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const apiDropdown = document.getElementById('apiDropdown');
+        userMenuBtn.addEventListener('click', () => apiDropdown.classList.toggle('show'));
+        document.addEventListener('click', (e) => {
+            if (!userMenuBtn.contains(e.target) && !apiDropdown.contains(e.target)) apiDropdown.classList.remove('show');
+        });
 
-        let cvReady = false;
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
+        const imageInput = document.getElementById('imageInput');
+        const imageToCrop = document.getElementById('imageToCrop');
+        const cropperArea = document.querySelector('.cropper-area');
+        const sizeSelect = document.getElementById('sizeSelect');
+        const customSizeArea = document.getElementById('customSizeArea');
+        const customUnit = document.getElementById('customUnit');
+        const customWidth = document.getElementById('customWidth');
+        const customHeight = document.getElementById('customHeight');
+        const resultPreviewCanvas = document.getElementById('resultPreviewCanvas');
+        const apiSlotSelect = document.getElementById('apiSlotSelect');
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const btnRemoveBg = document.getElementById('btnRemoveBg');
+        const bgColorPicker = document.getElementById('bgColorPicker');
+        const btnApplyColor = document.getElementById('btnApplyColor');
+        const btnAddToA4 = document.getElementById('btnAddToA4');
+        const btnClearEditor = document.getElementById('btnClearEditor');
+        const btnClearSheets = document.getElementById('btnClearSheets');
+        const btnPrint = document.getElementById('btnPrint');
+        const btnDownloadJpg = document.getElementById('btnDownloadJpg');
+        const btnDownloadPdf = document.getElementById('btnDownloadPdf');
+        const btnResetFilters = document.getElementById('btnResetFilters');
+        const btnSmartFix = document.getElementById('btnSmartFix');
+        const btnAutoColor = document.getElementById('btnAutoColor');
+        const quantityInput = document.getElementById('quantityInput');
+        const a4Container = document.getElementById('a4Container');
+        const filterCanvas = document.getElementById('filterCanvas');
+        const straightenSlider = document.getElementById('straightenSlider');
+
+        const hdSlider = document.getElementById('hdSlider');
+        const smoothSlider = document.getElementById('smoothSlider'); 
+        const yellowSlider = document.getElementById('yellowSlider'); 
+        const brightnessInput = document.getElementById('brightness');
+        const contrastInput = document.getElementById('contrast');
+        const saturateInput = document.getElementById('saturate');
+        const warmthInput = document.getElementById('warmth');
+
+        let cropper = null;
+        let originalCroppedCanvas = null; 
+        let isAutoColorEnabled = false;
+
+        let currentPhotoWidthCm = 3.5;
+        let currentPhotoHeightCm = 4.5;
+        let currentPhotoAspectRatio = 3.5 / 4.5;
+
+        let defaultAPIKey = "L2WTCZXgjVkXMLshHeoWXk58";
+        let savedApiKeys = JSON.parse(localStorage.getItem('removeBgApiKeys'));
         
-        let img = new Image();
-        let originalImageSrc = ''; 
-        let points = [];
-        let draggingPoint = null;
-        let isCropped = false;
-        let isBlackAndWhite = false;
-        let pdfPages = [];
-
-        const cropBtn = document.getElementById('cropBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const bwBtn = document.getElementById('bwBtn');
-        const addPageBtn = document.getElementById('addPageBtn');
-        const downloadCurrentJpgBtn = document.getElementById('downloadCurrentJpg');
-        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-        const brightnessSlider = document.getElementById('brightness');
-        const contrastSlider = document.getElementById('contrast');
-        const thumbnailList = document.getElementById('thumbnailList');
-        const pageCountTxt = document.getElementById('pageCount');
-        const emptyGallery = document.getElementById('emptyGallery');
-
-        const pointRadius = 14; 
-        const strokeColor = '#6366f1'; 
-        const A4_RATIO = 1.4142; 
-
-        function onOpenCvReady() {
-            cvReady = true;
-            document.getElementById('loading').style.display = 'none';
+        if (!Array.isArray(savedApiKeys) || savedApiKeys.length !== 4) {
+            savedApiKeys = [defaultAPIKey, "", "", ""];
+        } else if (!savedApiKeys[0] || savedApiKeys[0] === "") {
+            savedApiKeys[0] = defaultAPIKey;
         }
+        localStorage.setItem('removeBgApiKeys', JSON.stringify(savedApiKeys));
+        apiKeyInput.value = savedApiKeys[0];
 
-        function loadImageData(src) {
-            img.onload = () => {
-                const MAX_WIDTH = 800;
-                const MAX_HEIGHT = MAX_WIDTH * A4_RATIO;
-                let scale = Math.min(MAX_WIDTH / img.width, MAX_HEIGHT / img.height);
-                if (scale > 1) scale = 1; 
+        apiSlotSelect.addEventListener('change', () => { apiKeyInput.value = savedApiKeys[apiSlotSelect.value]; });
+        apiKeyInput.addEventListener('change', () => {
+            savedApiKeys[apiSlotSelect.value] = apiKeyInput.value.trim();
+            localStorage.setItem('removeBgApiKeys', JSON.stringify(savedApiKeys));
+        });
 
-                canvas.width = img.width * scale;
-                canvas.height = img.height * scale;
-                
-                isCropped = false;
-                isBlackAndWhite = false;
-                resetFilters();
-                initPoints();
-                draw(true); 
-                
-                enableButtons(true);
-                addPageBtn.disabled = true;
-                switchTab('adjust'); 
+        function updatePhotoDimensions() {
+            const sizeVal = sizeSelect.value;
+            if (sizeVal === 'custom') {
+                customSizeArea.style.display = 'flex';
+                let w = parseFloat(customWidth.value), h = parseFloat(customHeight.value), unit = customUnit.value;
+                if (w > 0 && h > 0) {
+                    if (unit === 'cm') { currentPhotoWidthCm = w; currentPhotoHeightCm = h; }
+                    else if (unit === 'mm') { currentPhotoWidthCm = w / 10; currentPhotoHeightCm = h / 10; }
+                    else if (unit === 'inch') { currentPhotoWidthCm = w * 2.54; currentPhotoHeightCm = h * 2.54; }
+                    currentPhotoAspectRatio = w / h;
+                }
+            } else {
+                customSizeArea.style.display = 'none';
+                if (sizeVal === 'passport') { currentPhotoWidthCm = 3.5; currentPhotoHeightCm = 4.5; currentPhotoAspectRatio = 3.5 / 4.5; }
+                else if (sizeVal === 'stamp') { currentPhotoWidthCm = 2.2; currentPhotoHeightCm = 2.5; currentPhotoAspectRatio = 2.2 / 2.5; }
+                else if (sizeVal === '2x2') { currentPhotoWidthCm = 5.1; currentPhotoHeightCm = 5.1; currentPhotoAspectRatio = 1; }
             }
-            img.src = src;
+            if (cropper) { cropper.setAspectRatio(currentPhotoAspectRatio); requestLivePreview(); }
         }
 
-        document.getElementById('uploadInput').addEventListener('change', (e) => {
+        [sizeSelect, customUnit, customWidth, customHeight].forEach(i => i.addEventListener('change', updatePhotoDimensions));
+        updatePhotoDimensions();
+
+        straightenSlider.addEventListener('input', () => {
+            document.getElementById('straightenVal').textContent = straightenSlider.value + '°';
+            if (cropper) { cropper.rotateTo(parseInt(straightenSlider.value, 10)); requestLivePreview(); }
+        });
+
+        function requestLivePreview() {
+            if (!cropper) return;
+            originalCroppedCanvas = cropper.getCroppedCanvas({ width: 350, height: 450 }); 
+            applyFiltersToCanvas(originalCroppedCanvas, resultPreviewCanvas);
+            resultPreviewCanvas.style.display = 'block';
+        }
+
+        function applyFiltersToCanvas(sourceCanvas, targetCanvas) {
+            const ctx = targetCanvas.getContext('2d', {willReadFrequently: true});
+            targetCanvas.width = sourceCanvas.width;
+            targetCanvas.height = sourceCanvas.height;
+            ctx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+
+            let fStr = `brightness(${brightnessInput.value}%) contrast(${contrastInput.value}%) saturate(${saturateInput.value}%)`;
+            ctx.filter = fStr;
+            ctx.drawImage(sourceCanvas, 0, 0);
+            ctx.filter = 'none';
+
+            let imageData = ctx.getImageData(0, 0, targetCanvas.width, targetCanvas.height);
+            let data = imageData.data;
+
+            if(isAutoColorEnabled) {
+                let rAvg = 0, gAvg = 0, bAvg = 0, count = 0;
+                for(let i=0; i<data.length; i+=4) {
+                    if(data[i+3] > 0) { rAvg+=data[i]; gAvg+=data[i+1]; bAvg+=data[i+2]; count++; }
+                }
+                if(count > 0) {
+                    rAvg /= count; gAvg /= count; bAvg /= count;
+                    let avg = (rAvg+gAvg+bAvg)/3;
+                    let rScale = Math.max(0.7, Math.min(1.3, avg/rAvg));
+                    let gScale = Math.max(0.7, Math.min(1.3, avg/gAvg));
+                    let bScale = Math.max(0.7, Math.min(1.3, avg/bAvg));
+                    for(let i=0; i<data.length; i+=4) {
+                        data[i] = Math.min(255, data[i] * rScale);
+                        data[i+1] = Math.min(255, data[i+1] * gScale);
+                        data[i+2] = Math.min(255, data[i+2] * bScale);
+                    }
+                }
+            }
+
+            let yAdj = parseInt(yellowSlider.value) / 100;
+            if (yAdj !== 0) {
+                for (let i = 0; i < data.length; i += 4) {
+                    let r = data[i], g = data[i + 1], b = data[i + 2];
+                    let minRG = Math.min(r, g);
+                    if (minRG > b) { 
+                        let yellowSatur = minRG - b;
+                        let factor = 1 + (yAdj * (yellowSatur / 255) * 2); 
+                        data[i] = Math.min(255, Math.max(0, r * factor));   
+                        data[i + 1] = Math.min(255, Math.max(0, g * factor)); 
+                        if (yAdj > 0) data[i+2] = Math.max(0, b * (1 - yAdj*0.2)); 
+                    }
+                }
+            }
+
+            let wVal = parseFloat(warmthInput.value);
+            if (wVal !== 0) {
+                let rAdd = wVal > 0 ? wVal : 0;
+                let bAdd = wVal < 0 ? -wVal : 0;
+                for(let i=0; i<data.length; i+=4) {
+                    data[i] = Math.min(255, data[i] + rAdd);
+                    data[i+2] = Math.min(255, data[i+2] + bAdd);
+                }
+            }
+
+            let sharpenMix = parseInt(hdSlider.value);
+            if (sharpenMix > 0) {
+                let w = targetCanvas.width, h = targetCanvas.height;
+                let tempData = new Uint8ClampedArray(data);
+                let amount = sharpenMix / 100;
+                for (let y = 1; y < h - 1; y++) {
+                    for (let x = 1; x < w - 1; x++) {
+                        let i = (y * w + x) * 4;
+                        for (let c = 0; c < 3; c++) {
+                            let val = 5 * tempData[i + c] - tempData[i - 4 + c] - tempData[i + 4 + c] - tempData[i - w * 4 + c] - tempData[i + w * 4 + c];
+                            data[i + c] = data[i + c] + (val - data[i + c]) * amount;
+                        }
+                    }
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+
+            let smoothVal = parseInt(smoothSlider.value);
+            if(smoothVal > 0) {
+                let tempCanvas = document.createElement('canvas');
+                tempCanvas.width = targetCanvas.width; tempCanvas.height = targetCanvas.height;
+                let tCtx = tempCanvas.getContext('2d');
+                tCtx.putImageData(imageData, 0, 0); 
+                ctx.globalAlpha = (smoothVal / 100) * 0.7; 
+                ctx.filter = `blur(${1 + (smoothVal / 100) * 3}px)`; 
+                ctx.drawImage(tempCanvas, 0, 0); 
+                ctx.globalAlpha = 1.0;
+                ctx.filter = 'none';
+            }
+        }
+
+        let isRendering = false;
+        const sliders = [brightnessInput, contrastInput, saturateInput, yellowSlider, warmthInput, smoothSlider, hdSlider];
+        sliders.forEach(input => {
+            input.addEventListener('input', () => {
+                let suffix = (input.id === 'yellowSlider' || input.id === 'warmth') ? '' : '%';
+                document.getElementById(input.id + 'Val').textContent = input.value + suffix;
+                if (input.id === 'warmth') {
+                    if (input.value == 0) document.getElementById('warmthVal').textContent = 'Neutral';
+                    else document.getElementById('warmthVal').textContent = (input.value > 0 ? 'Warm' : 'Cool');
+                }
+                if (!isRendering) {
+                    isRendering = true;
+                    requestAnimationFrame(() => { requestLivePreview(); isRendering = false; });
+                }
+            });
+        });
+
+        btnAutoColor.addEventListener('click', () => {
+            isAutoColorEnabled = !isAutoColorEnabled;
+            if(isAutoColorEnabled) {
+                btnAutoColor.classList.add('btn-toggle-active');
+                btnAutoColor.textContent = "🌈 Auto Color: ON";
+            } else {
+                btnAutoColor.classList.remove('btn-toggle-active');
+                btnAutoColor.textContent = "🌈 Auto Color: OFF";
+            }
+            requestLivePreview();
+        });
+
+        btnResetFilters.addEventListener('click', () => {
+            brightnessInput.value = 100; contrastInput.value = 100; saturateInput.value = 100; 
+            yellowSlider.value = 0; warmthInput.value = 0; smoothSlider.value = 0; hdSlider.value = 0;
+            isAutoColorEnabled = false;
+            btnAutoColor.classList.remove('btn-toggle-active');
+            btnAutoColor.textContent = "🌈 Auto Color: OFF";
+            sliders.forEach(s => s.dispatchEvent(new Event('input')));
+        });
+
+        btnSmartFix.addEventListener('click', () => {
+            isAutoColorEnabled = true;
+            btnAutoColor.classList.add('btn-toggle-active');
+            btnAutoColor.textContent = "🌈 Auto Color: ON";
+            brightnessInput.value = 105; contrastInput.value = 108; saturateInput.value = 105; 
+            yellowSlider.value = 0; warmthInput.value = 0;  hdSlider.value = 35; smoothSlider.value = 25; 
+            sliders.forEach(s => s.dispatchEvent(new Event('input')));
+        });
+
+        imageInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = (event) => {
-                originalImageSrc = event.target.result;
-                loadImageData(originalImageSrc);
-                e.target.value = ''; 
-            }
+                imageToCrop.src = event.target.result;
+                straightenSlider.value = 0;
+                document.getElementById('straightenVal').textContent = '0°';
+                if (cropper) cropper.replace(imageToCrop.src);
+                else initCropper();
+            };
             reader.readAsDataURL(file);
         });
 
-        function enableButtons(enable) {
-            cropBtn.disabled = !enable;
-            resetBtn.disabled = !enable;
-            bwBtn.disabled = !enable;
-            downloadCurrentJpgBtn.disabled = !enable;
+        function initCropper() {
+            cropper = new Cropper(imageToCrop, { aspectRatio: currentPhotoAspectRatio, viewMode: 1, autoCropArea: 1, cropend: requestLivePreview, ready: requestLivePreview });
         }
-
-        function initPoints() {
-            const w = canvas.width;
-            const h = canvas.height;
-            const offset = 40; 
-            points = [
-                { x: offset, y: offset },             
-                { x: w - offset, y: offset },         
-                { x: w - offset, y: h - offset },     
-                { x: offset, y: h - offset }          
-            ];
-        }
-
-        function draw(showUI = true) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            const br = brightnessSlider.value;
-            const ct = contrastSlider.value;
-            const bw = isBlackAndWhite ? 'grayscale(100%)' : '';
-            
-            ctx.filter = `brightness(${100 + parseInt(br)}%) contrast(${100 + parseInt(ct)}%) ${bw}`;
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            ctx.filter = 'none'; 
-
-            if (!isCropped && showUI) {
-                // Overlay Mask Opacity changed to 0.8
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-                ctx.beginPath();
-                ctx.moveTo(0, 0); ctx.lineTo(canvas.width, 0); ctx.lineTo(canvas.width, canvas.height); ctx.lineTo(0, canvas.height); ctx.closePath();
-                ctx.moveTo(points[0].x, points[0].y); ctx.lineTo(points[3].x, points[3].y); ctx.lineTo(points[2].x, points[2].y); ctx.lineTo(points[1].x, points[1].y); ctx.closePath();
-                ctx.fill('evenodd');
-
-                ctx.beginPath();
-                ctx.moveTo(points[0].x, points[0].y);
-                for(let i=1; i<4; i++) ctx.lineTo(points[i].x, points[i].y);
-                ctx.closePath();
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = 2.5;
-                ctx.stroke();
-
-                points.forEach(p => {
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, pointRadius, 0, Math.PI * 2);
-                    ctx.fillStyle = strokeColor;
-                    ctx.fill();
-                    ctx.strokeStyle = '#ffffff';
-                    ctx.lineWidth = 3;
-                    ctx.stroke();
-                });
-            }
-        }
-
-        function getMousePos(e) {
-            const rect = canvas.getBoundingClientRect();
-            const clientX = e.clientX || e.touches[0].clientX;
-            const clientY = e.clientY || e.touches[0].clientY;
-            return {
-                x: (clientX - rect.left) * (canvas.width / rect.width),
-                y: (clientY - rect.top) * (canvas.height / rect.height)
-            };
-        }
-
-        function onPointerDown(e) {
-            if(isCropped) return;
-            const pos = getMousePos(e);
-            draggingPoint = points.find(p => Math.hypot(p.x - pos.x, p.y - pos.y) < pointRadius * 2.5);
-        }
-
-        function onPointerMove(e) {
-            if (!draggingPoint || isCropped) return;
-            const pos = getMousePos(e);
-            draggingPoint.x = Math.max(0, Math.min(canvas.width, pos.x));
-            draggingPoint.y = Math.max(0, Math.min(canvas.height, pos.y));
-            draw(true);
-        }
-        function onPointerUp() { draggingPoint = null; }
-
-        canvas.addEventListener('mousedown', onPointerDown);
-        canvas.addEventListener('mousemove', onPointerMove);
-        window.addEventListener('mouseup', onPointerUp);
-        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); onPointerDown(e); }, {passive: false});
-        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); onPointerMove(e); }, {passive: false});
-        window.addEventListener('touchend', onPointerUp);
-
-        cropBtn.addEventListener('click', () => {
-            if (!cvReady || isCropped) return;
-            
-            draw(false); 
-            
-            let src = cv.imread(canvas);
-            let srcCoords = [
-                points[0].x, points[0].y, points[1].x, points[1].y,
-                points[2].x, points[2].y, points[3].x, points[3].y
-            ];
-            
-            let widthA = Math.hypot(points[2].x - points[3].x, points[2].y - points[3].y);
-            let widthB = Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y);
-            let maxWidth = Math.max(widthA, widthB);
-
-            let heightA = Math.hypot(points[1].x - points[2].x, points[1].y - points[2].y);
-            let heightB = Math.hypot(points[0].x - points[3].x, points[0].y - points[3].y);
-            let maxHeight = Math.max(heightA, heightB);
-
-            let finalWidth, finalHeight;
-            if (maxHeight > maxWidth) { 
-                finalHeight = maxHeight; 
-                finalWidth = finalHeight / A4_RATIO; 
-            } else { 
-                finalWidth = maxWidth; 
-                finalHeight = finalWidth / A4_RATIO; 
-            }
-
-            let dstCoords = [ 0, 0, finalWidth, 0, finalWidth, finalHeight, 0, finalHeight ];
-            let srcMat = cv.matFromArray(4, 1, cv.CV_32FC2, srcCoords);
-            let dstMat = cv.matFromArray(4, 1, cv.CV_32FC2, dstCoords);
-            let dsize = new cv.Size(finalWidth, finalHeight);
-            
-            let M = cv.getPerspectiveTransform(srcMat, dstMat);
-            let dst = new cv.Mat();
-            cv.warpPerspective(src, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
-
-            canvas.width = finalWidth;
-            canvas.height = finalHeight;
-            cv.imshow('canvas', dst);
-            
-            img.onload = null; 
-            img.src = canvas.toDataURL('image/jpeg', 1.0); 
-            isCropped = true; 
-            
-            src.delete(); dst.delete(); M.delete(); srcMat.delete(); dstMat.delete();
-            
-            addPageBtn.disabled = false;
-            cropBtn.disabled = true; 
-        });
-
-        brightnessSlider.addEventListener('input', () => draw(true));
-        contrastSlider.addEventListener('input', () => draw(true));
-
-        bwBtn.addEventListener('click', () => {
-            isBlackAndWhite = !isBlackAndWhite;
-            draw(true);
-            bwBtn.classList.toggle('btn-outline');
-            bwBtn.classList.toggle('btn-crop'); 
-        });
-
-        function resetFilters() {
-            brightnessSlider.value = 0;
-            contrastSlider.value = 0;
-            bwBtn.className = 'btn-outline';
-        }
-
-        resetBtn.addEventListener('click', () => {
-            if(originalImageSrc) {
-                loadImageData(originalImageSrc);
-            }
-        });
-
-        function getFilteredImageDataURL() {
-            const exportCanvas = document.createElement('canvas');
-            exportCanvas.width = canvas.width;
-            exportCanvas.height = canvas.height;
-            const eCtx = exportCanvas.getContext('2d');
-            eCtx.filter = ctx.filter = `brightness(${100 + parseInt(brightnessSlider.value)}%) contrast(${100 + parseInt(contrastSlider.value)}%) ${isBlackAndWhite ? 'grayscale(100%)' : ''}`;
-            eCtx.drawImage(img, 0, 0, exportCanvas.width, exportCanvas.height);
-            return exportCanvas.toDataURL('image/jpeg', 0.9);
-        }
-
-        downloadCurrentJpgBtn.addEventListener('click', () => {
-            const link = document.createElement('a');
-            link.download = 'DocuScan_Page.jpg';
-            link.href = getFilteredImageDataURL();
-            link.click();
-        });
         
-        addPageBtn.addEventListener('click', () => {
-            if(!isCropped) return;
+        cropperArea.addEventListener('dragover', (e) => { e.preventDefault(); cropperArea.style.borderColor = 'var(--primary)'; });
+        cropperArea.addEventListener('dragleave', () => { cropperArea.style.borderColor = 'var(--border)'; });
+        cropperArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            cropperArea.style.borderColor = 'var(--border)';
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                imageInput.files = dataTransfer.files;
+                imageInput.dispatchEvent(new Event('change'));
+            }
+        });
 
-            if(pdfPages.length === 0) emptyGallery.style.display = 'none';
+        btnRemoveBg.addEventListener('click', async () => {
+            if (!cropper) return alert('Upload image first.');
+            const validKeys = savedApiKeys.filter(key => key.length > 5);
+            if (validKeys.length === 0) {
+                apiDropdown.classList.add('show');
+                return alert('Please enter at least one valid API Key in the user settings (Top Right corner).');
+            }
+            btnRemoveBg.textContent = "Processing..."; btnRemoveBg.disabled = true;
+            cropper.getCroppedCanvas().toBlob(async (blob) => {
+                const formData = new FormData();
+                formData.append('size', 'auto'); 
+                formData.append('image_file', blob, 'image.png');
+                let success = false;
+                for (let i = 0; i < validKeys.length; i++) {
+                    try {
+                        const response = await fetch('https://api.remove.bg/v1.0/removebg', {
+                            method: 'POST', headers: { 'X-Api-Key': validKeys[i] }, body: formData
+                        });
+                        if (response.ok) {
+                            const resultUrl = URL.createObjectURL(await response.blob());
+                            cropper.replace(resultUrl);
+                            success = true;
+                            break; 
+                        }
+                    } catch (error) { console.error('API Error:', error); }
+                }
+                if (!success) alert('Background removal failed. Please check if your API Key is valid or out of free credits.');
+                btnRemoveBg.textContent = "✂️ Remove BG"; btnRemoveBg.disabled = false; 
+            }, 'image/png');
+        });
 
-            const pageDataUrl = getFilteredImageDataURL();
-            const pageIndex = pdfPages.length;
-            pdfPages.push(pageDataUrl);
-            
-            pageCountTxt.innerText = pdfPages.length;
-            downloadPdfBtn.disabled = false;
+        btnApplyColor.addEventListener('click', () => {
+            if (!cropper) return;
+            const canvas = cropper.getCroppedCanvas();
+            filterCanvas.width = canvas.width; filterCanvas.height = canvas.height;
+            const fCtx = filterCanvas.getContext('2d');
+            fCtx.fillStyle = bgColorPicker.value; fCtx.fillRect(0, 0, filterCanvas.width, filterCanvas.height);
+            fCtx.drawImage(canvas, 0, 0);
+            cropper.replace(filterCanvas.toDataURL());
+        });
 
-            const card = document.createElement('div');
-            card.className = 'thumb-card';
-            
-            const header = document.createElement('div');
-            header.className = 'thumb-card-header';
-            header.innerHTML = `<span>Page ${pdfPages.length}</span>`;
-            
-            const thumbImg = document.createElement('img');
-            thumbImg.src = pageDataUrl;
-            
-            card.appendChild(header);
-            card.appendChild(thumbImg);
-            thumbnailList.appendChild(card);
-            
-            switchTab('pages');
+        btnAddToA4.addEventListener('click', () => {
+            if (!cropper) return alert('Upload an image first.');
+            const quantity = parseInt(quantityInput.value, 10);
+            if (quantity < 1) return;
+            const rawOutputCanvas = cropper.getCroppedCanvas({ imageSmoothingQuality: 'high' });
+            filterCanvas.width = rawOutputCanvas.width; 
+            filterCanvas.height = rawOutputCanvas.height;
+            applyFiltersToCanvas(rawOutputCanvas, filterCanvas);
+            const finalDataUrl = filterCanvas.toDataURL('image/jpeg', 0.95);
+
+            let cols = 6, maxPerSheet = 36;
+            if (currentPhotoWidthCm >= 10 && currentPhotoHeightCm >= 15) { cols = 2; maxPerSheet = 4; } 
+            else if (currentPhotoWidthCm >= 5) { cols = 4; maxPerSheet = 16; } 
+            else if (currentPhotoWidthCm <= 2.5) { cols = 8; maxPerSheet = 64; }
+
+            let itemsCreated = 0;
+            while (itemsCreated < quantity) {
+                let sheets = document.querySelectorAll('.a4-sheet');
+                let sheet = sheets[sheets.length - 1];
+                if (!sheet || sheet.children.length >= maxPerSheet) { 
+                    sheet = document.createElement('div');
+                    sheet.className = 'a4-sheet';
+                    sheet.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+                    sheet.style.gridAutoFlow = 'row';
+                    sheet.style.gridTemplateRows = 'none';
+                    a4Container.appendChild(sheet);
+                }
+                let availableSlots = maxPerSheet - sheet.children.length;
+                let toAdd = Math.min(quantity - itemsCreated, availableSlots);
+                const fragment = document.createDocumentFragment();
+                for (let i = 0; i < toAdd; i++) {
+                    const photoWrapper = document.createElement('div');
+                    photoWrapper.className = 'photo-wrapper';
+                    photoWrapper.style.aspectRatio = `${currentPhotoWidthCm} / ${currentPhotoHeightCm}`;
+                    photoWrapper.dataset.origW = currentPhotoWidthCm;
+                    photoWrapper.dataset.origH = currentPhotoHeightCm;
+                    photoWrapper.dataset.rotated = "false"; 
+
+                    const imgNode = document.createElement('img');
+                    imgNode.src = finalDataUrl;
+                    imgNode.dataset.originalSrc = finalDataUrl; 
+                    
+                    photoWrapper.appendChild(imgNode);
+                    fragment.appendChild(photoWrapper);
+                    itemsCreated++;
+                }
+                sheet.appendChild(fragment);
+            }
+            if (window.innerWidth <= 992) a4Container.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        btnClearEditor.addEventListener('click', () => {
+            if (cropper) { cropper.destroy(); cropper = null; }
+            imageToCrop.src = ''; resultPreviewCanvas.style.display = 'none'; imageInput.value = '';
+            straightenSlider.value = 0; document.getElementById('straightenVal').textContent = '0°';
+            btnResetFilters.click();
+        });
+
+        btnClearSheets.addEventListener('click', () => {
+            if(confirm('Delete all photos from sheets?')) { a4Container.innerHTML = '<div class="a4-sheet"></div>'; }
+        });
+
+        btnPrint.addEventListener('click', () => window.print());
+
+        btnDownloadJpg.addEventListener('click', () => {
+            const sheets = document.querySelectorAll('.a4-sheet');
+            if (sheets.length === 0 || sheets[0].children.length === 0) return alert('Sheets are empty.');
+            btnDownloadJpg.innerHTML = "⏳ Wait..."; btnDownloadJpg.disabled = true;
+            setTimeout(async () => {
+                for (let i = 0; i < sheets.length; i++) {
+                    const canvas = await html2canvas(sheets[i], { scale: 3, useCORS: true });
+                    const link = document.createElement('a');
+                    link.download = `Passport_Sheet_${i + 1}.jpg`;
+                    link.href = canvas.toDataURL('image/jpeg', 1.0); 
+                    link.click();
+                }
+                btnDownloadJpg.innerHTML = "🖼️ JPG"; btnDownloadJpg.disabled = false;
+            }, 50);
+        });
+
+        btnDownloadPdf.addEventListener('click', () => {
+            const sheets = document.querySelectorAll('.a4-sheet');
+            if (sheets.length === 0 || sheets[0].children.length === 0) return alert('Sheets are empty.');
+            btnDownloadPdf.innerHTML = "⏳ Wait..."; btnDownloadPdf.disabled = true;
             setTimeout(() => {
-                document.getElementById('tab-pages').scrollTo({
-                    top: document.getElementById('tab-pages').scrollHeight,
-                    behavior: 'smooth'
+                html2pdf().set({
+                    margin: 0, filename: 'Passport_Sheets.pdf', image: { type: 'jpeg', quality: 1.0 },
+                    html2canvas: { scale: 3, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                }).from(a4Container).save().then(() => {
+                    btnDownloadPdf.innerHTML = "📄 PDF"; btnDownloadPdf.disabled = false;
                 });
             }, 50);
         });
 
-        downloadPdfBtn.addEventListener('click', () => {
-            if (pdfPages.length === 0) return;
-            const { jsPDF } = window.jspdf;
-            
-            const docFormat = [210, 297]; 
-            const doc = new jsPDF({ format: docFormat, unit: 'mm' });
-            
-            pdfPages.forEach((pageData, index) => {
-                if (index > 0) doc.addPage(docFormat);
-                doc.addImage(pageData, 'JPEG', 0, 0, 210, 297);
+        function rotateImage90(src, callback) {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.height; canvas.height = img.width; 
+                const ctx = canvas.getContext('2d');
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.rotate(90 * Math.PI / 180);
+                ctx.drawImage(img, -img.width / 2, -img.height / 2);
+                callback(canvas.toDataURL('image/jpeg', 1.0));
+            };
+            img.src = src;
+        }
+
+        a4Container.addEventListener('click', (e) => {
+            const clickedWrapper = e.target.closest('.photo-wrapper');
+            if (!clickedWrapper) return;
+            const sheet = clickedWrapper.parentElement;
+            const clickedRect = clickedWrapper.getBoundingClientRect();
+            const tolerance = 5; 
+            const rowItems = Array.from(sheet.querySelectorAll('.photo-wrapper')).filter(item => {
+                const itemRect = item.getBoundingClientRect();
+                return Math.abs(itemRect.top - clickedRect.top) <= tolerance;
             });
-            
-            doc.save('DocuScan_Document.pdf');
+            const isCurrentlyRotated = clickedWrapper.dataset.rotated === 'true';
+            const targetState = !isCurrentlyRotated;
+            rowItems.forEach(item => {
+                item.dataset.rotated = targetState; 
+                const w = item.dataset.origW || currentPhotoWidthCm;
+                const h = item.dataset.origH || currentPhotoHeightCm;
+                const img = item.querySelector('img');
+                if (targetState) {
+                    item.style.aspectRatio = `${h} / ${w}`; 
+                    rotateImage90(img.dataset.originalSrc, (newSrc) => { img.src = newSrc; });
+                } else {
+                    item.style.aspectRatio = `${w} / ${h}`; 
+                    img.src = img.dataset.originalSrc; 
+                }
+            });
         });
     </script>
 </body>
