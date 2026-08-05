@@ -2,7 +2,7 @@
   "name": "Professional Photo Maker",
   "short_name": "Photo Maker",
   "description": "Create professional passport, stamp, and custom-size photos instantly.",
-  "start_url": "./index.html",
+  "start_url": "/DocumentScanner/",
   "display": "standalone",
   "background_color": "#09090e",
   "theme_color": "#09090e",

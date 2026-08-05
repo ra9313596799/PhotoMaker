@@ -3,27 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
-    <!-- ================= SEO META TAGS ================= -->
     <title>Professional Photo Maker - Passport & ID Photo Generator</title>
     <meta name="description" content="Create professional passport, stamp, and custom-size photos instantly. Free AI background removal, auto color correction, and A4 print sheet generator by Atulit Studio.">
-    <meta name="keywords" content="passport photo maker, professional photo generator, remove background, auto fix photo, ID photo creator, A4 photo sheet, passport size photo online">
-    <meta name="author" content="Atulit Studio">
-    <meta name="robots" content="index, follow">
-
+    <meta name="keywords" content="passport photo maker, professional photo generator, remove background, auto fix photo, ID photo creator, A4 photo sheet, passport size photo online"/>
+    <meta name="author" content="Atulit Studio"/>
+    <meta name="robots" content="index, follow"/>
     <!-- Open Graph / Facebook / WhatsApp -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://yourwebsite.com/">
-    <meta property="og:title" content="Professional Photo Maker - Free Passport Photo Generator">
-    <meta property="og:description" content="Create professional passport, stamp, and custom-size photos instantly. Free AI background removal and A4 print sheets.">
-    <meta property="og:image" content="icon-512x512.png">
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="https://ra9313596799.github.io/PhotoMaker/"/>
+    <meta property="og:title" content="Professional Photo Maker - Free Passport Photo Generator"/>
+    <meta property="og:description" content="Create professional passport, stamp, and custom-size photos instantly. Free AI background removal and A4 print sheets."/>
+    <meta property="og:image" content="icon.png"/>
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://yourwebsite.com/">
+    <meta property="twitter:card" content="summary_large_image"/>
+    <meta property="twitter:url" content="https://ra9313596799.github.io/PhotoMaker/"/>
     <meta property="twitter:title" content="Professional Photo Maker - Free Passport Photo Generator">
-    <meta property="twitter:description" content="Create professional passport, stamp, and custom-size photos instantly. Free AI background removal and A4 print sheets.">
-    <meta property="twitter:image" content="icon-512x512.png">
+    <meta property="twitter:description" content="Create professional passport, stamp, and custom-size photos instantly. Free AI background removal and A4 print sheets."/>
+    <meta property="twitter:image" content="icon.png">
 
     <!-- ================= PWA META TAGS ================= -->
     <link rel="manifest" href="manifest.json">
@@ -31,8 +28,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Photo Maker">
-    <link rel="apple-touch-icon" href="icon-192x192.png">
-    <link rel="icon" type="image/png" href="icon-192x192.png">
+    <link rel="apple-touch-icon" href="icon.png"/>
+    <link rel="icon" type="image/png" href="icon.png"/>
 
     <script>
     if ('serviceWorker' in navigator) {
@@ -47,7 +44,7 @@
     </script>
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 
     <style>
         :root{--primary: #6366f1;  --primary-hover: #818cf8; --bg-base: #09090e; --panel-bg: rgba(26, 26, 46, 0.6);  --text-main: #f8fafc; --text-muted: #94a3b8; --border: rgba(255, 255, 255, 0.12); --input-bg: rgba(0, 0, 0, 0.4); --sheet-bg: #ffffff;}
@@ -118,7 +115,7 @@
         #resultPreviewCanvas{ max-width: 130px;  min-height: 160px;  height: auto; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 8px 24px rgba(0,0,0,0.5); background: #fff; display: none;  border-radius: 4px;}
         
         .a4-container{display: flex; flex-direction: column; gap:20px; width: 100%; align-items: center; padding-bottom: 40px; }
-        .a4-sheet{ width: 100%; max-width: 210mm; aspect-ratio: 210 / 297; background: var(--sheet-bg); padding:0;  display: grid; grid-template-columns: repeat(6, 1fr); gap: 1%; align-content: start;  box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative;  border-radius: 2px;}        
+        .a4-sheet{ width: 100%; max-width: 210mm; aspect-ratio: 210 / 297; background: var(--sheet-bg); padding:2%;  display: grid; grid-template-columns: repeat(6, 1fr); gap: 1%; align-content: start;  box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative;  border-radius: 2px;}        
         
         .photo-wrapper{ position: relative; width: 100%; border: 1px solid #000;  overflow: hidden; background: #f9fafb;  cursor: pointer; transition: transform 0.1s, box-shadow 0.1s;}
         .photo-wrapper:hover{transform: scale(0.96); box-shadow: 0 0 0 3px var(--primary); z-index: 10;}        
@@ -129,11 +126,27 @@
         #hdSlider::-webkit-slider-runnable-track{background: linear-gradient(to right, rgba(255,255,255,0.1), #10B981); }
         #smoothSlider::-webkit-slider-runnable-track{background: linear-gradient(to right, rgba(255,255,255,0.1), #EC4899); }
 
-        .bottom-action-bar { background: rgba(19, 19, 31, 0.95); backdrop-filter: blur(16px); border-top: 1px solid var(--border); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; gap: 15px; z-index: 100; flex-shrink: 0; }
-        .action-left { display: flex; align-items: center; gap: 10px; }
-        .action-right { display: flex; align-items: center; gap: 10px; }
-        .action-right button { min-height: 42px; }
+        /* --- UPDATED FOOTER CSS FOR DESKTOP STICKY & RIGHT ALIGNMENT --- */
+        .bottom-action-bar { 
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+            background: rgba(19, 19, 31, 0.95); 
+            backdrop-filter: blur(16px); 
+            border-top: 1px solid var(--border); 
+            padding: 12px 24px; 
+            display: flex; 
+            justify-content: flex-end; /* Aligns all content to the right */
+            align-items: center; 
+            z-index: 100; 
+            flex-shrink: 0; 
+        }
+        .action-right { display: flex; align-items: center; gap: 15px; }
+        .action-row1, .action-row2 { display: flex; align-items: center; gap: 10px; }
+        .action-row1 button, .action-row2 button { min-height: 42px; }
+        .action-row1 input { height: 42px; width: 70px; text-align: center; }
 
+        /* --- UPDATED MOBILE CSS FOR TWO ROWS --- */
         @media (max-width: 992px){
             .app-container{flex-direction: column; height: auto; overflow-y: auto; }
             .left-sidebar { order: 1; }
@@ -144,12 +157,27 @@
             .left-sidebar, .right-sidebar{border-bottom: 1px solid var(--border); }
             .main-content{padding: 20px; }
             .cropper-area{min-height: 200px; }
-            .bottom-action-bar { flex-direction: column; padding: 12px; padding-bottom: max(15px, env(safe-area-inset-bottom)); gap: 12px; position: sticky; bottom: 0; width: 100%; }
-            .action-left { width: 100%; justify-content: stretch; }
-            .action-left > div { width: 100%; }
-            .action-right { width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-            .action-right button { flex: 1 1 calc(33% - 10px); font-size: 0.8rem; padding: 8px 4px; }
+            
+            .bottom-action-bar { 
+                padding: 12px; 
+                padding-bottom: max(15px, env(safe-area-inset-bottom)); 
+                justify-content: center;
+            }
+            .action-right { 
+                flex-direction: column; /* Stack the two rows vertically */
+                width: 100%; 
+                gap: 10px; 
+            }
+            .action-row1, .action-row2 { 
+                width: 100%; 
+                justify-content: space-between; 
+                gap: 8px; 
+            }
+            .action-row1 button { flex: 1; font-size: 0.75rem; padding: 8px 4px; min-width: 0; }
+            .action-row1 input { flex: 0 0 60px; font-size: 0.8rem; padding: 0 5px; } /* Fixed width for number input */
+            .action-row2 button { flex: 1; font-size: 0.85rem; padding: 10px; }
         }
+        
         @media print{
             @page{size: A4; margin: 0; }
             body{background: white !important; display: block; overflow: visible; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -165,7 +193,7 @@
 <body>
  
     <header class="top-header">
-        <div class="header-title">📸 <span>Atulit</span> Studio</div>
+        <div class="header-title"><span>Atulit</span> Studio</div>
         <div class="user-menu-wrapper">
             <button id="userMenuBtn" class="user-icon-btn" title="API Settings">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -193,7 +221,7 @@
             <div class="cropper-area"><img id="imageToCrop" src="" alt=""></div>
 
             <div style="display: flex; gap: 10px; width: 100%; align-items: flex-end;">
-                <div class="control-group" style="width: 45%;">
+                <div class="control-group" style="width: 35%;">
                     <label style="margin-bottom: 2px;">Photo Size</label>
                     <select id="sizeSelect" style="padding: 10px 8px;">
                         <option value="passport" selected>Passport</option>
@@ -202,7 +230,7 @@
                         <option value="custom">Custom</option>
                     </select>
                 </div>
-                <div class="control-group" style="width: 55%;">
+                <div class="control-group" style="width: 65%;">
                     <label style="margin-bottom: 2px;">Rotate <span id="straightenVal">0°</span></label>
                     <input type="range" id="straightenSlider" min="-180" max="180" value="0" step="1" title="360° Rotation" style="margin-bottom: 10px;">
                 </div>
@@ -259,19 +287,22 @@
         </div>
     </div> 
     
+    <!-- --- UPDATED ACTION BAR --- -->
     <div class="bottom-action-bar">
-        <div class="action-left">
-            <div style="display: flex; gap: 8px; width: 100%;">
-                <input type="number" id="quantityInput" value="6" min="1" max="150" style="width: 70px; text-align: center; height: 42px;">
-                <button id="btnAddToA4" style="flex: 1; min-width: 150px;">➕ Add to Sheet</button>
-            </div>
-        </div>
         <div class="action-right">
-            <button id="btnClearEditor" class="secondary">❌ Clear Edit</button>
-            <button id="btnClearSheets" class="secondary">🗑️ Clear Sheets</button>
-            <button id="btnPrint" style="background-color: #10B981; color: #fff;">🖨️ Print</button>
-            <button id="btnDownloadJpg" style="background-color: #F59E0B; color: #fff;">🖼️ JPG</button>
-            <button id="btnDownloadPdf" style="background-color: #EF4444; color: #fff;">📄 PDF</button>
+            <!-- ROW 1 -->
+            <div class="action-row1">
+                <button id="btnClearEditor" class="secondary">Clear Edit</button>
+                <button id="btnClearSheets" class="secondary">Clear Sheets</button>
+                <input type="number" id="quantityInput" value="6" min="1" max="150" />
+                <button id="btnAddToA4">Add Photo</button>
+            </div>
+            <!-- ROW 2 -->
+            <div class="action-row2">
+                <button id="btnDownloadJpg" style="background-color: #F59E0B; color: #fff;">🖼️ JPG</button>
+                <button id="btnDownloadPdf" style="background-color: #EF4444; color: #fff;">📄 PDF</button>
+                <button id="btnPrint" style="background-color: #10B981; color: #fff;">🖨️ Print</button>
+            </div>
         </div>
     </div>
 
