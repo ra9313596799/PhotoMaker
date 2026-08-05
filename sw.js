@@ -1,8 +1,8 @@
 const CACHE_NAME = 'photo-maker-cache-v1';
 const urlsToCache = [
   './',
-  './index.html?v1',
-  './manifest.json?v1',
+  './index.html?v2',
+  './manifest.json?v2',
   'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js',
@@ -20,30 +20,12 @@ self.addEventListener('install', event => {
       })
   );
 });
-
-// Fetching from Cache when offline
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Return cached version or fetch from network
+        // Return cache hit or fetch from network
         return response || fetch(event.request);
       })
-  );
-});
-
-// Activate & Update Cache
-self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
   );
 });
