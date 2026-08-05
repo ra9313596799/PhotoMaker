@@ -1,8 +1,8 @@
 const CACHE_NAME = 'photo-maker-cache-v1';
 const urlsToCache = [
   './',
-  './index.html?v2',
-  './manifest.json?v2',
+  './index.html?v3',
+  './manifest.json?v3',
   'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js',

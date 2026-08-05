@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" href="icon.png"/>
 
  <!-- Service worker register karne ke liye -->
-    <link rel="manifest" href="manifest.json?v2"/>
+    <link rel="manifest" href="manifest.json?v3"/>
     <meta name="theme-color" content="#09090e"/>
     <script>
     if ('serviceWorker' in navigator) {
@@ -190,6 +190,9 @@
  
     <header class="top-header">
         <div class="header-title"><span>Atulit</span> Studio</div>
+        <button id="installAppBtn" class="upload-btn" style="display: none; background: #10b981; margin-right: 10px;">
+        <i class="fa-solid fa-download"></i> Install App
+    </button>
         <div class="user-menu-wrapper">
             <button id="userMenuBtn" class="user-icon-btn" title="API Settings">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -755,6 +758,43 @@
                     img.src = img.dataset.originalSrc; 
                 }
             });
+        });
+
+        // --- PWA INSTALLATION LOGIC ---
+        let deferredPrompt;
+        const installAppBtn = document.getElementById('installAppBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Browser ka default install prompt rokna
+            e.preventDefault();
+            // Event ko save karna taaki baad me button click par use kar sakein
+            deferredPrompt = e;
+            // Install button ko show karna
+            installAppBtn.style.display = 'flex'; 
+        });
+
+        installAppBtn.addEventListener('click', async () => {
+            if (deferredPrompt !== null) {
+                // Prompt dikhana
+                deferredPrompt.prompt();
+                // User ka response wait karna (Accept kiya ya Reject)
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+                // Prompt ek hi baar use hota hai, isliye isko null kar dein
+                deferredPrompt = null;
+                // Button ko hide kar dein
+                installAppBtn.style.display = 'none';
+            }
+        });
+
+        // Agar app successfully install ho jaye toh button ko hide kar dena
+        window.addEventListener('appinstalled', (e) => {
+            installAppBtn.style.display = 'none';
+            console.log('App successfully installed!');
         });
     </script>
 </body>
