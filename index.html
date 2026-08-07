@@ -33,11 +33,17 @@
     <link rel="manifest" href="manifest.json?v3"/>
     <meta name="theme-color" content="#09090e"/>
     <script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v1');
+   if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => { 
+        navigator.serviceWorker.register('sw.js?v4', { scope: '/PhotoMaker/' })
+        .then((registration) => {
+            console.log('Service Worker registered with scope:', registration.scope);
+        })
+        .catch((error) => {
+            console.error('Service Worker registration failed:', error);
         });
-    } 
+    });
+}
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -61,7 +67,7 @@
         
         .user-icon-btn{width:35px;    height:35px;   border-radius: 50%; background: var(--input-bg); border: 1px solid var(--border); color: var(--text-main); display: block;  cursor: pointer; transition: all 0.2s; position: relative;}
         .user-icon-btn:hover{ background: rgba(255,255,255,0.1);  border-color: var(--primary);  overflow: hidden;}
-        .user-icon-btn svg{ width:30px;     height: 30px;    fill: currentColor;  position: absolute; left: 4px; top: 4px;}
+        .user-icon-btn svg{ width:20px;     height:20px;    fill: currentColor;  position: absolute; left: 7px; top: 7px;}
         .api-dropdown{position: absolute; top: 50px; right: 0; width: 280px; background: rgba(30, 30, 45, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); display: none; flex-direction: column; gap: 10px; z-index: 100; transform-origin: top right; animation: fadeIn 0.2s ease;}
         .api-dropdown.show{display: flex; }
         
@@ -190,7 +196,7 @@
  
     <header class="top-header">
         <div class="header-title"><span>Atulit</span> Studio</div>
-        <button id="installAppBtn" class="upload-btn" style="display: none; background: #10b981; margin-right: 10px;">
+        <button id="installAppBtnPhotoMaker" class="upload-btn" style="display: none; background: #10b981; margin-right: 10px;">
         <i class="fa-solid fa-download"></i> Install App
     </button>
         <div class="user-menu-wrapper">
@@ -758,44 +764,7 @@
                     img.src = img.dataset.originalSrc; 
                 }
             });
-        });
-
-        // --- PWA INSTALLATION LOGIC ---
-        let deferredPrompt;
-        const installAppBtn = document.getElementById('installAppBtn');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Browser ka default install prompt rokna
-            e.preventDefault();
-            // Event ko save karna taaki baad me button click par use kar sakein
-            deferredPrompt = e;
-            // Install button ko show karna
-            installAppBtn.style.display = 'flex'; 
-        });
-
-        installAppBtn.addEventListener('click', async () => {
-            if (deferredPrompt !== null) {
-                // Prompt dikhana
-                deferredPrompt.prompt();
-                // User ka response wait karna (Accept kiya ya Reject)
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    console.log('User accepted the install prompt');
-                } else {
-                    console.log('User dismissed the install prompt');
-                }
-                // Prompt ek hi baar use hota hai, isliye isko null kar dein
-                deferredPrompt = null;
-                // Button ko hide kar dein
-                installAppBtn.style.display = 'none';
-            }
-        });
-
-        // Agar app successfully install ho jaye toh button ko hide kar dena
-        window.addEventListener('appinstalled', (e) => {
-            installAppBtn.style.display = 'none';
-            console.log('App successfully installed!');
-        });
+        }); 
     </script>
 </body>
 </html>
